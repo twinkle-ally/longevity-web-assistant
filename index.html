@@ -1,21 +1,69 @@
-<form id="quiz">
-  <label>你的睡眠时间：</label>
-  <select name="sleep">
-    <option value="-2"><5小时</option>
-    <option value="0">5-8小时</option>
-    <option value="2">8小时以上</option>
-  </select>
-  <!-- 更多问题 -->
-  <button type="submit">提交并查看寿命</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Longevity Predictor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🧬 寿命预测问卷</h1>
+    <form id="quiz">
+      <label for="sleep">平均每日睡眠时长：</label>
+      <select name="sleep" id="sleep">
+        <option value="-2">少于5小时</option>
+        <option value="0">5-8小时</option>
+        <option value="2">8小时以上</option>
+      </select>
 
-<div id="result">你的预计寿命是：-- 岁</div>
+      <label for="exercise">每周锻炼频率：</label>
+      <select name="exercise" id="exercise">
+        <option value="-1">几乎不锻炼</option>
+        <option value="1">每周1-2次</option>
+        <option value="3">每周3次以上</option>
+      </select>
 
-<script>
-  document.querySelector("#quiz").addEventListener("submit", function(e) {
-    e.preventDefault();
-    let base = 79.3; // 女
-    let offset = [...new FormData(this).values()].map(Number).reduce((a,b)=>a+b,0);
-    document.querySelector("#result").innerText = "你的预计寿命是：" + (base + offset).toFixed(1) + " 岁";
-  });
-</script>
+      <label for="diet">你认为自己的饮食：</label>
+      <select name="diet" id="diet">
+        <option value="-1">油腻重口</option>
+        <option value="0">普通</option>
+        <option value="2">清淡均衡</option>
+      </select>
+
+      <button type="submit">提交并查看寿命</button>
+    </form>
+
+    <div id="result"></div>
+    <div id="advice"></div>
+  </div>
+
+  <script>
+    document.querySelector("#quiz").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      let base = 79.3;
+      const form = new FormData(this);
+      let offset = [...form.values()].map(Number).reduce((a, b) => a + b, 0);
+      let result = `🧠 你的预计寿命为 <b>${(base + offset).toFixed(1)} 岁</b>`;
+      document.querySelector("#result").innerHTML = result;
+
+      // 调用 Coze API 获取饮食建议
+      const cozeRes = await fetch("https://api.coze.com/open_api/v2/chat", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer pat_KLeY5SQtgzrbufTJ0CNGuxfiwRxw5od6bWaW31giT6SsH3C0CXNpYrUKxDs2pF1R",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bot_id: "7525328901838209051",
+          user: "demo_user",
+          query: `我做了一个寿命问卷，预计寿命是 ${(base + offset).toFixed(1)} 岁，请给我个饮食建议`,
+        }),
+      });
+      const data = await cozeRes.json();
+      document.querySelector("#advice").innerHTML =
+        "🥗 饮食建议：<br>" + (data.messages?.[0]?.content || "获取失败")
+    });
+  </script>
+</body>
+</html>
