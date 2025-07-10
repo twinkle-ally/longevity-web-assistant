@@ -8,7 +8,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>🧬 超级无敌寿命预测问卷</h1>
+    <h1>🧬 😮‍💨寿命预测问卷</h1>
     <form id="quiz">
       <label for="sleep">平均每日睡眠时长：</label>
       <select name="sleep" id="sleep">
@@ -34,36 +34,36 @@
       <button type="submit">提交并查看寿命</button>
     </form>
 
-    <div id="result" style="margin-top: 20px;"></div>
-    <div id="advice" style="margin-top: 20px;"></div>
+    <div id="result"></div>
+    <div id="advice"></div>
   </div>
 
   <script>
     document.querySelector("#quiz").addEventListener("submit", async function (e) {
       e.preventDefault();
+
+      // 1. 计算寿命
       const base = 79.3;
       const form = new FormData(this);
       const offset = [...form.values()].map(Number).reduce((a, b) => a + b, 0);
-      const finalAge = (base + offset).toFixed(1);
+      const predicted = (base + offset).toFixed(1);
+      document.querySelector("#result").innerHTML = `🧠 你的预计寿命为 <b>${predicted} 岁</b>`;
 
-      // 显示寿命估算
-      document.querySelector("#result").innerHTML = `🧠 你的预计寿命为 <b>${finalAge} 岁</b>`;
-
-      // 调用 Render 上的代理 API 获取饮食建议
+      // 2. 请求 Render 中转接口获取饮食建议
       try {
-        const res = await fetch("https://coze-proxy-render.onrender.com/api/coze", {
+        const response = await fetch("https://coze-proxy-render.onrender.com/api/coze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            query: `我做了一个寿命问卷，预计寿命是 ${finalAge} 岁，请给我个饮食建议`
-          }),
+            query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我个饮食建议`
+          })
         });
 
-        const data = await res.json();
-        const advice = data?.messages?.[0]?.content || "❗未能获取建议，请稍后重试";
-        document.querySelector("#advice").innerHTML = "🥗 饮食建议：<br>" + advice;
+        const data = await response.json();
+        const message = data.messages?.[0]?.content || "获取建议失败，请稍后再试。";
+        document.querySelector("#advice").innerHTML = "🥗 饮食建议：<br>" + message;
       } catch (err) {
-        document.querySelector("#advice").innerHTML = "❗ 网络错误：" + err.message;
+        document.querySelector("#advice").innerHTML = "❌ 网络错误或服务异常，请稍后再试。";
       }
     });
   </script>
