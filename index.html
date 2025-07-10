@@ -1,0 +1,21 @@
+<form id="quiz">
+  <label>你的睡眠时间：</label>
+  <select name="sleep">
+    <option value="-2"><5小时</option>
+    <option value="0">5-8小时</option>
+    <option value="2">8小时以上</option>
+  </select>
+  <!-- 更多问题 -->
+  <button type="submit">提交并查看寿命</button>
+</form>
+
+<div id="result">你的预计寿命是：-- 岁</div>
+
+<script>
+  document.querySelector("#quiz").addEventListener("submit", function(e) {
+    e.preventDefault();
+    let base = 79.3; // 女
+    let offset = [...new FormData(this).values()].map(Number).reduce((a,b)=>a+b,0);
+    document.querySelector("#result").innerText = "你的预计寿命是：" + (base + offset).toFixed(1) + " 岁";
+  });
+</script>
