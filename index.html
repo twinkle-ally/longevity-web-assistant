@@ -37,36 +37,39 @@
     <div id="result"></div>
     <div id="advice"></div>
   </div>
+<script>
+  document.querySelector("#quiz").addEventListener("submit", async function (e) {
+    e.preventDefault();
 
-  <script>
-    document.querySelector("#quiz").addEventListener("submit", async function (e) {
-      e.preventDefault();
+    // 1. 计算寿命
+    const base = 79.3;
+    const form = new FormData(this);
+    const offset = [...form.values()].map(Number).reduce((a, b) => a + b, 0);
+    const predicted = (base + offset).toFixed(1);
+    document.querySelector("#result").innerHTML = `🧠 你的预计寿命为 <b>${predicted} 岁</b>`;
 
-      // 1. 计算寿命
-      const base = 79.3;
-      const form = new FormData(this);
-      const offset = [...form.values()].map(Number).reduce((a, b) => a + b, 0);
-      const predicted = (base + offset).toFixed(1);
-      document.querySelector("#result").innerHTML = `🧠 你的预计寿命为 <b>${predicted} 岁</b>`;
+    // 2. 请求 Render 中转接口获取饮食建议
+    try {
+      const response = await fetch("https://coze-proxy-render.onrender.com/api/coze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我一个饮食建议`
+        })
+      });
 
-      // 2. 请求 Render 中转接口获取饮食建议
-      try {
-        const response = await fetch("https://coze-proxy-render.onrender.com/api/coze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            user: "demo_user", // ✅ 必加字段！
-            query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我个饮食建议`
-          })
-        });
+      const data = await response.json();
 
-        const data = await response.json();
-        const message = data.messages?.[0]?.content || "获取建议失败，请稍后再试。";
-        document.querySelector("#advice").innerHTML = "🥗 饮食建议：<br>" + message;
-      } catch (err) {
-        document.querySelector("#advice").innerHTML = "❌ 网络错误或服务异常，请稍后再试。";
-      }
-    });
-  </script>
+      // ✅ 打印 Coze 的完整响应数据（调试用）
+      console.log("Coze 返回内容：", data);
+
+      const message = data?.messages?.[0]?.content || "获取建议失败，请稍后再试。";
+      document.querySelector("#advice").innerHTML = "🥗 饮食建议：<br>" + message;
+    } catch (err) {
+      console.error("请求出错：", err);
+      document.querySelector("#advice").innerHTML = "❌ 网络错误或服务异常，请稍后再试。";
+    }
+  });
+</script>
 </body>
 </html>
