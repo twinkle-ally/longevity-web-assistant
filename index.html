@@ -55,6 +55,7 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            user: "demo_user", // ✅ 必加字段！
             query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我个饮食建议`
           })
         });
