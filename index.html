@@ -54,8 +54,10 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我一个饮食建议`
-        })
+  "bot_id": "7525328901838209051",
+  "user": "user_001",
+  "query": "我做了一个寿命问卷，预计寿命是 82 岁，请给我一个饮食建议"
+})
       });
 
       const data = await response.json();
