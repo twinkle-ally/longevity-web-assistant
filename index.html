@@ -56,13 +56,16 @@ try {
     body: JSON.stringify({
       bot_id: "7525328901838209051",
       user: "user_001",
-      query: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我一个饮食建议`
+      messages: [
+        {
+          role: "user",
+          content: `我做了一个寿命问卷，预计寿命是 ${predicted} 岁，请给我一个饮食建议`
+        }
+      ]
     })
   });
 
   const data = await response.json();
-
-  // ✅ 打印 Coze 的完整响应数据（调试用）
   console.log("Coze 返回内容：", data);
 
   const message = data?.messages?.[0]?.content || "获取建议失败，请稍后再试。";
